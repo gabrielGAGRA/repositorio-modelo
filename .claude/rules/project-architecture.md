@@ -1,0 +1,23 @@
+---
+description: Use when editing app/ Python — package layout, hexagonal layers, composition root, and where adapters vs domain/application code belong.
+paths:
+  - "app/**/*.py"
+---
+
+<!-- TEMPLATE: Inject-ready rule. Replace every FILL block with target-repo facts; delete this banner when done. -->
+
+# Architecture
+
+| Layer | Path | Key modules |
+| --- | --- | --- |
+<!-- FILL: Presentation row. Discover: app/presentation/. Keep: path + comma-separated key modules. -->
+<!-- FILL: Application row. Discover: app/application/. Keep: path + key use_cases, ports, dtos. -->
+<!-- FILL: Domain row. Discover: app/domain/. Keep: path + repositories, services, models. -->
+<!-- FILL: Infrastructure row. Discover: app/infrastructure/. Keep: path + adapter classes. -->
+<!-- FILL: Common row (or omit row). Discover: app/common/. Keep: path + shared modules. -->
+
+**Composition root**: <!-- FILL: Bootstrap file and wired types (adapters, use cases, routers). Discover: http_bootstrap.py or wire_app. Keep: one sentence. -->
+
+<!-- FILL: Primary I/O invariant (e.g. all persistence via one external API). Discover: infrastructure adapters. Keep: one bold sentence; omit if not applicable. -->
+
+Deeper package map: `docs/llm/architecture-guide.md`.

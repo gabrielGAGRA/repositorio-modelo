@@ -1,0 +1,513 @@
+--- [agents PARTE 1/12] --- 
+= .agents\rules\agents-feature-checklist.md =
+
+description: > 
+Always use when planning or adding a new feature, endpoint, use case, port/adapter, or public 
+API method. 
+globs: app/**/*.py 
+alwaysApply: false
+
+<!-- TEMPLATE: Inject-ready rule. Replace every FILL block with target-repo facts; delete this banner when done. -->
+
+Feature Change Checklist
+
+Post-change
+
+	6.	Quality gate: Problems should be fixed (or added to ignore, only if adequate) and run until pass.
+ruff format; ruff check --fix;
+mypy app tests;
+lint-imports;
+find-dup-defs app --only py --error-thickness 0.3 -D @find-dup-defs.directives;
+	7.	Docs update: docs/llm guides as triggered by the decision matrix.
+	8.	Rules / governance: Read @project-rules-writing only right before updating rules (invocation time).
+	9.	Git: Only when requested by user; if so, read @commit only at invocation time.
+	10.	Adversarial review: Use @adversarial-review; resolve Required findings and re-run affected verification.
+
+Decision Matrix
+
+After finishing a task, evaluate downstream updates. Open a file ONLY when a trigger below matches.
+You Changed	Evaluate
+
+<!-- FILL: Row — app/ behavior (domain, use cases, infra, HTTP). Discover: tests/ layer folders matching app/. Keep: matching test paths + run pytest for touched layer. -->
+<!-- FILL: Row — HTTP request/response fields or router mapping. Discover: routers, schemas, tests/presentation/. Keep: docs/llm/domain-api-guide.md + presentation tests. -->
+<!-- FILL: Row — domain invariant or validation rule. Discover: domain services, tests/domain/. Keep: docs/llm/domain-api-guide.md + matching domain tests. -->
+<!-- FILL: Row — use-case orchestration or application port contract. Discover: use_cases/, tests/application/. Keep: project-domain-api or project-architecture guide + application tests. -->
+<!-- FILL: Row — infrastructure adapter or external client. Discover: app/infrastructure/, tests/infrastructure/--- [agents PARTE 2/12] ---
+/. Keep: project-architecture or project-domain-api guide + infra tests. -->
+
+<!-- FILL: Row — structured logging or event enums. Discover: app/common/, log sites in routers/use cases. Keep: list concrete modules to review. -->
+<!-- FILL: Row — layer map, adapters, composition root. Discover: app/ tree, http_bootstrap or wire_app. Keep: docs/llm/architecture-guide.md. -->
+<!-- FILL: Row — pipeline, CloudFormation, Docker, or deploy config. Discover: pipeline/, CI yaml, README. Keep: list paths to review. -->
+<!-- FILL: Row — test conventions or harness. Discover: tests/, pytest.ini. Keep: docs/llm/tests-guide.md + tests/pytest.ini. -->
+| Agent rule or skill | Edit the runtime copy, promote it to .agents/, then run python scripts/sync_agents.py. |
+
+= .agents\rules\meta-rules.md =
+
+description: > 
+Use for rule priority, where to find docs, and when to 
+invoke skills (planning, review, commit, and rule governance). 
+alwaysApply: true
+
+
+<!-- TEMPLATE: Inject-ready rule. Replace every FILL block with target-repo facts; delete this banner when done. -->
+
+Meta rules
+
+Priority (highest -> lowest)
+
+	1.	AGENTS.md - persona and behavioral constraints
+	2.	project-rules - repo scope, tech stack
+	3.	agents-feature-checklist - change order (before, during, and after implementation)
+	4.	project-architecture / project-domain-api - layout and sandbox explanations and pointers
+	5.	project-tests - test layout and pointers
+	6.	docs/llm/software-engineering-rules.md - coding standards (passive; read only when implementing)
+
+Skill Invocation (single registry)
+Trigger / Intent	Action
+Commit, branch, or any git write	@commit
+Create, edit, or self-heal agent rules / conventions	@project-rules-writing
+User asks for a PR code review	@PR-code-review
+User explicitly invokes catchup	@catchup
+Ambiguous or relevant behavior change, before planning	@interview-plan
+Any diff before delivery or git write	`@ad/--- [agents PARTE 5/12] ---
+and git diff --staged	
+	⁃	git log -n 5
+	2.	Analyze the diff — one logical purpose per commit.
+	3.	Draft following The Seven Rules below.
+	4.	Commit with hooks disabled (see command format below).
+	5.	Verify with git status.
+	6.	Feature branch: If the current branch is not the integration base (main, dev, or user-specified), offer the user a PR title and body draft using the PR Message Draft Rules below.
+
+B. New branches
+
+When creating a branch before work:
+
+	1.	Confirm base branch.
+	2.	Name with existing prefixes: feat/, fix/, refact/ + short kebab slug.
+	3.	Create from the correct base: git checkout -b <name> <base>.
+	4.	When committing on that branch, follow section A.
+ 
+2. The Seven Rules of a Great Commit Message
+
+Every commit message must follow Conventional Commits and all seven rules below.
+
+Subject format (required):
+<type>[optional scope][optional !]: <description>
+	⁃	Types: feat, fix, build, chore, ci, docs, style, refactor, perf, test (others allowed when they fit better).
+	⁃	Scope (optional): noun in parentheses, e.g. feat(parser):.
+	⁃	Breaking change: append ! before : and/or add a BREAKING CHANGE: footer.
+	⁃	Description: short summary in imperative mood, immediately after : . Capitalize the first letter of the description.
+
+1. Separate subject from body with a blank line
+Begin with a single summary line (subject), a blank line, then the body. 
+Why: Git and GitHub treat the first line as the title. Without the blank line, tools merge subject and body.
+
+2. Limit the subject line to 50 characters
+Keep the subject around 50 characters; 72 is the hard limit. 
+Why: Forces a concise summary. If you cannot summarize well in 50 characters, the commit may be too large — split it.
+
+3. Capitalize the subject line
+Capitalize the first letter of the description after the type/scope prefix (e.g. fix: Prevent racing of requests). 
+Type and scope t/--- [agents PARTE 4/12] --- 
+e/regression; add contract compatibility for APIs, access/exposure for security or data, atomicity/idempotency for persistence or concurrency, and dependency boundaries/wiring for architecture. 
+2. Create falsifiable break hypotheses from the approved task/plan contract (when present) and diff. 
+3. Trace each hypothesis through affected code, tests, and boundary contracts. 
+4. Attempt to refute each candidate finding with code or executable evidence. Discard a candidate that cannot establish a reachable failure path. 
+5. Return one verdict:
+	⁃	pass — no evidence-backed Required finding remains;
+	⁃	blocked — a Required finding has a reproducible impact;
+	⁃	needs-human-decision — an unresolved product or risk trade-off blocks a reliable conclusion.
+
+Finding requirements
+
+Every retained finding must include severity, location, reproduction scenario, controlled input/state, traced failure path, concrete impact, and the verification needed after remediation. Do not report style preferences, speculative defects, or findings without an attack/regression path.
+
+Output
+
+# Adversarial Review
+
+## Verdict
+[pass | blocked | needs-human-decision]
+
+## Context isolation
+[fresh subagent | separate chat | same-session fallback]
+
+## Findings
+- `path:Lx` — [severity] [scenario, evidence, impact, required verification]
+
+## Checks refuted
+- [candidate hypothesis and evidence that disproved it]
+
+= .agents\skills\commit\SKILL.md =
+
+name: commit 
+description: >- 
+Use only when you are about to run any git write command.
+
+
+Git Commit Automation
+
+Role & Mission
+
+You are responsible for clean, atomic, well-documented git history in this repo. 
+Every commit must follow the project's standards.
+
+When the user already asked to create a branch and/or commit, including "later" in the same task: execute at the end of the task.
+ 
+1. Workflow (Step-by-Step)
+
+A. Commits
+
+	1.	Gather context (run in parallel):
+	⁃	git status
+	⁃	git diff/--- [agents PARTE 3/12] --- 
+	⁃	versarial-review` |
+
+Navigation - when to read what
+Question	Read
+Persona, communication style	AGENTS.md
+Tech stack, venv	project-rules
+Before an ambiguous or relevant change (interview + plan)	@interview-plan + agents-feature-checklist
+After a code or contract change (tests, docs, quality gate)	agents-feature-checklist
+Validating any diff before delivery	@adversarial-review
+<!-- FILL: Navigation row — HTTP contract, validation, external I/O, AI message format. Discover: project-domain-api rule + routers/schemas. Keep: project-domain-api + docs/llm/domain-api-guide.md. -->
+<!-- FILL: Navigation row — layer map / package layout. Discover: app/ tree. Keep: project-architecture + docs/llm/architecture-guide.md. -->
+<!-- FILL: Navigation row — env, secrets, deploy runtime config. Discover: app/config.py, pipeline/, infra yaml. Keep: list concrete config paths. -->
+| Python patterns, imports, DIP | docs/llm/software-engineering-rules.md |
+<!-- FILL: Navigation row — test tree and pytest markers. Discover: tests/, pytest.ini. Keep: project-tests + docs/llm/tests-guide.md + tests/pytest.ini. -->
+| Rule create / update / self-healing | @project-rules-writing skill |
+
+= .agents\skills\adversarial-review\SKILL.md =
+
+name: adversarial-review 
+description: Independently try to break every diff and retain only evidence-backed findings.
+
+
+Adversarial Review
+
+Goal
+
+Challenge the change contract rather than confirming the author's intent. Run before every delivery or git write.
+
+Context isolation
+
+Use a fresh local subagent whenever the environment provides one. Give it the approved task/plan contract if one exists, the diff, and only the repository context needed to test a hypothesis. If unavailable, use a separate new chat with that limited context. Same-session review is a fallback and must state that fresh-context isolation was unavailable.
+
+Workflow
+
+	1.	Classify risk — always scop/--- [agents PARTE 7/12] --- 
+	2.	git -c core.hooksPath=.git/hooks-empty commit -m "$(cat <<'EOF' 
+	3.	type: Description in imperative mood
+
+Body explaining what and why, wrapped at 72 characters. 
+EOF 
+)"
+
+**PowerShell:**
+```powershell
+git -c core.hooksPath=.git/hooks-empty commit -m @"
+type: Description in imperative mood
+
+Body explaining what and why, wrapped at 72 characters.
+"@
+
+= .agents\skills\fix-test-coverage\SKILL.md =
+
+name: fix-test-coverage 
+description: Inspects code and adds missing tests where coverage is weak and business risk is meaningful, focused on preventing regressions.
+
+
+Test Coverage Automation
+
+Role & Mission
+
+You are a test coverage automation focused on preventing regressions.
+
+Goal
+
+Inspect code and add missing tests where coverage is weak and business risk is meaningful.
+
+Prioritization
+
+Prioritize:
+	⁃	Edge-case logic, parsing, concurrency, permissions, and data validation.
+	⁃	Shared utilities and core flows with large blast radius.
+	⁃	New code paths.
+	⁃	Bug fixes that changed code.
+
+Avoid:
+	⁃	Trivial snapshots with little signal.
+	⁃	Tests for cosmetic-only changes.
+	⁃	Refactors that do not change behavior unless critical behavior is now untested.
+
+Implementation rules
+
+	⁃	Follow existing test conventions and fixture patterns.
+	⁃	Keep tests deterministic and independent.
+	⁃	Add the minimum set of tests that clearly prove correctness.
+	⁃	Do not change behavior unless a tiny testability refactor is required.
+
+Validation
+
+	⁃	Run the relevant test targets for touched areas.
+	⁃	If tests are flaky or environment-dependent, note it explicitly and avoid merging fragile tests.
+ 
+Workflow
+
+	1.	Gather context: Read the changed or target code. Run coverage for the touched module or layer when scope is unclear.
+	2.	Map risk: Identify untested branches with meaningful business impact using the prioritization rules above.
+	3.	Read conventions: Before writing tests, read project-tests and docs/llm/software-engineering-rules.md for layout, AAA pattern,/--- [agents PARTE 6/12] --- 
+	4.	okens stay lowercase; only BREAKING CHANGE in footers must be uppercase.
+
+4. Do not end the subject line with a period
+
+5. Use the imperative mood in the description
+Write as a command. The description should complete: If applied, this commit will [description].
+	⁃	refactor: Simplify filesystem adapter (correct)
+
+6. Wrap the body at 72 characters
+Git does not auto-wrap. Wrap body text manually at 72 characters.
+
+7. Use the body to explain what and why, not how
+The diff shows how. The body explains the problem, context, and side effects.
+
+Example:
+refactor: Remove unused catalog persistence port
+
+The MemoryCatalogPersistence fake covered all test scenarios;
+the redundant Protocol definition added noise and drifted from
+the domain interface. No runtime behavior changes.
+
+Breaking change example:
+feat!: Drop support for Node 6
+
+BREAKING CHANGE: use JavaScript features not available in Node 6.
+
+ 
+3. PR Message Draft Rules (User Opens the PR)
+
+When the current branch is not the integration base, offer the user a PR title and body using these rules.
+
+	⁃	Title: Same rules as the commit subject (type[scope]: description, imperative, capitalized description, ≤50–72 chars, no period).
+	⁃	Body: Include:
+	⁃	Summary — 1–3 bullets on what changed and why
+	⁃	Test plan — checklist of verification steps run or to run
+ 
+4. Execution Guardrails
+
+Never run commands that lose pending changes, unless confirmed by the user original message intent.
+
+	⁃	Hooks disabled: git -c core.hooksPath=.git/hooks-empty commit unless the user explicitly asks to run hooks.
+	⁃	No Co-authored-by: Never append Co-authored-by trailers.
+	⁃	No force push. Never push unless explicitly asked.
+	⁃	Atomic commits: If the diff has multiple unrelated changes, suggest splitting first.
+ 
+5. Commit Command Format
+
+Use a HEREDOC (bash) or here-string (PowerShell) so blank lines and wrapping survive.
+
+Bash:
+polish), **Optional** (worth considering), or **FYI** (educational only).
+- Provide a direct fix when it materially accelerates resolution; otherwise describe the required outcome, not an arbitrary implementation.
+- Educational feedback must be non-mandatory (`Nit` or `FYI`).
+- Resolve disagreement using evidence and project rules; if needed, discuss synchronously, record the result, then escalate to the maintainer or technical lead.
+
+## Output format
+
+```markdown
+# Code Review
+
+## Verdict
+[Approve | Request Changes | Block]
+
+*One-sentence justification of how this change affects overall code health.*
+
+## Summary
+[2-3 sentences summarizing the changes and overall quality]
+
+## Highlights
+- **Praise:** [What was done well and why]
+
+## Required
+- `path/to/file.py:L<num>` — **Required:** [Issue, why it matters, and suggested fix]
+
+## Suggestions
+- `path/to/file.py:L<num>` — **Nit:** [Style or polish point]
+- `path/to/file.py:L<num>` — **Optional:** [Improvement idea]
+- `path/to/file.py` — **FYI:** [Educational or future note]
+
+## Architecture & Standards
+- [Confirmations or violations of architecture and project rules]
+
+## Test Coverage
+- [Status of relevant tests and gaps]
+
+Examples
+
+	⁃	Bad: "Why did you use threads here when there's obviously no benefit?"
+	⁃	Good (Optional): "The concurrency model adds complexity without a demonstrated performance benefit. A single-threaded approach would be simpler to maintain."
+	⁃	Bad: "Use a repository here."
+	⁃	Good (Required): "This use case imports S3Client directly from infrastructure/, violating hexagonal boundaries. Inject a port defined in domain/repositories/ instead."
+
+= .agents\skills\project-rules-writing\SKILL.md =
+
+name: project-rules-writing 
+description: > 
+Create, update, or self-heal project rules and conventions. ALWAYS invoke this autonomously without waiting for the user to ask when you make a mistake.
+
+
+Project Rules Governance
+
+Single workflow for creating rules, updating c/--- [agents PARTE 9/12] --- 
+oject standards:** Map changed files to their layers, then check docs/llm/software-engineering-rules.md and applicable project rules. 
+5. Assess quality: Use the checklist below, then formulate objective feedback. Include specific positive feedback when warranted.
+
+Review checklist
+
+	⁃	Design and scope: The change fits the system and is not speculative generalization, unrelated reformatting, or an unwanted direction. Solve the demonstrated problem, not a hypothetical future one.
+	⁃	Functionality: It provides the intended, user-valuable behavior. Consider edge cases, failures, user-facing effects, and races or deadlocks in concurrent code.
+	⁃	Complexity: Code is understandable quickly at line, function, class, and change levels. If it requires a long explanatory comment, prefer simplifying it; comments should usually explain why, not obvious what.
+	⁃	Tests: Appropriate unit, integration, or end-to-end tests accompany production changes except emergencies. Tests are maintainable, make meaningful assertions, fail when behavior breaks, and avoid false positives.
+	⁃	Maintainability: Names communicate purpose; documentation changes with build, test, interaction, release, deprecation, or deletion behavior.
+	⁃	Style and consistency: Enforce the applicable style guide. Where it is silent, prefer healthy local conventions over personal preference.
+
+Verdicts
+
+	⁃	Approve: No Required issues remain and the change improves overall code health. Nits, Optional ideas, and FYIs do not prevent approval.
+	⁃	Request Changes: At least one Required issue: a correctness defect, security problem, broken or missing necessary test, or project-rule violation.
+	⁃	Block: An unwanted direction, severe architectural-boundary violation, or critical security risk.
+
+Feedback
+
+	⁃	Comment on code, not the author. Be specific, constructive, and explain the concrete risk, principle, or rule.
+	⁃	Label every finding: Required (must fix), Nit (non-blocking/--- [agents PARTE 8/12] --- 
+	⁃	markers, and mocking rules.
+	4.	Validate: Run the narrowest relevant pytest target first, then the full suite if multiple layers changed.
+
+Output format
+
+After completing the work, report:
+
+# Test Coverage
+
+## Summary
+[What was under-tested and what you added]
+
+## Tests added
+- `tests/...` — [behavior proven]
+
+## Coverage gaps deferred
+- [Area skipped and why: low risk, cosmetic, or blocked by flakiness]
+
+## Validation
+- [Commands run and result]
+
+= .agents\skills\PR-code-review\SKILL.md =
+
+name: PR-code-review 
+description: >- 
+Reviews pull requests following engineering practices.
+
+
+Google Code Review
+
+Mission
+
+Improve codebase health over time while preserving developer velocity. Favor approval once a change clearly improves code health; do not delay it for perfection or personal preferences. Block an unwanted product direction even when its implementation is good.
+
+Technical evidence, project rules, and the applicable style guide outrank opinion. When they do not decide an issue, accept a reasonable author choice or healthy local convention.
+
+Review workflow
+
+	1.	Take a broad view: Read the change description, full diff, and necessary surrounding code. Do not infer unobserved code. Decide whether the change is wanted, timely, and appropriately scoped; if it is not, respond early with an explanation and viable alternative.
+	2.	Review the main parts first: Identify the primary logical files and evaluate their design before smaller files. Report major design flaws immediately. If the change is too large to identify its main concern, ask the author to split it.
+	3.	Review all assigned code: Review every assigned human-written line in a logical sequence; read tests first when they clarify intended behavior. State the limited scope when reviewing only certain files or concerns. Seek a qualified reviewer for security, privacy, accessibility, internationalization, or concurrency work outside your expertise.
+	4.	**Apply pr/--- [agents PARTE 11/12] --- 
+	5.	onventions, and self-healing after mistakes. .agents/ is the sync source of truth but is not readable by the IDE agent. Prefer as last non-git step for rule/skill work.
+
+Edit → copy → sync (required)
+
+Every governance edit ends with this — later sections say promote + sync instead of repeating commands.
+
+	1.	Edit inline in a folder the agent can access: .claude/, .cursor/, .github/ + root AGENTS.md.
+	2.	Copy into the matching path under .agents/ (Copy-Item). Map: .provider/rules/<name>.mdc → .agents/rules/<name>.md; skills keep SKILL.md; AGENTS.md → .agents/AGENTS.md.
+	3.	Sync — python scripts/sync_agents.py.
+
+NEVER read .agents/ files via terminal. Read what you can access, copy in and sync only.
+
+1. Layer choice (Skill vs Rule vs Passive doc)
+Layer	Canonical path	Purpose	When to use
+Skill	.agents/skills/	Punctual multi-step workflows	Commit, reviews, rule governance (this skill), test coverage
+Rule	.agents/rules/	Always-on or glob-triggered orientation maps	Layout/domain/test context when matching files are open; ~25 lines
+Passive doc	docs/llm/	Deep knowledge base	On demand when a rule points to it, or when this skill/checklist requires it
+
+Rules point to passive docs — never duplicate coding standards there. Do not create a rule adapter for broad docs.
+
+2. Rule file map (prefer append over new files)
+
+	⁃	meta-rules — routing, priority, skill registry (alwaysApply: true)
+	⁃	project-rules — tech stack, venv (alwaysApply: true)
+	⁃	AGENTS.md — persona, XML behaviour tags (root; not a rule file)
+	⁃	agents-feature-checklist decides what do update when planning or implementing a change in the repo.
+	⁃	Others are scoped maps
+
+Keep 5–8 rule files; consolidate if approaching 10.
+
+3. Create / extend a rule category
+
+	1.	Classify: orientation map (rule) vs punctual workflow (skill) vs passive doc only.
+	2.	Heavy doc — docs/llm/</--- [agents PARTE 12/12] --- topic>-guide.md (or append): guidelines, examples, trade-offs.
+
+	3.	Thin adapter — accessible platform rules folder (e.g. .cursor/rules/<name>.mdc): frontmatter (description, globs, alwaysApply: false) + short map. Point to the heavy doc for edge cases.
+
+---
+description: >
+  Use when [concrete trigger].
+globs: app/**/*.py
+alwaysApply: false
+---
+
+# [Title] Map
+
+[Short facts that avoid a routine doc read]
+
+Deeper detail: docs/llm/<guide>.md
+
+	4.	Update meta-rules navigation if this is a new category.
+	5.	Promote + sync.
+
+When tightening a section:
+	⁃	Lint catches it? → doc can stay thin.
+	⁃	Default LLM behavior? → one NEVER/ALWAYS + optional Why.
+	⁃	Chooses between two valid repo approaches? → keep as a separate bullet.
+
+4. Update an existing standard
+
+	1.	Edit heavy doc in docs/llm/ for detailed changes.
+	2.	Edit thin adapter only if triggers (description, globs) or top invariants changed.
+	3.	Promote + sync if any adapter, skill, or AGENTS.md changed.
+
+5. Self-healing (autonomous — do not wait for user)
+
+Trigger when: user corrects a recurring error; you lacked project context; a rule or docs/llm/ guide is stale or misleading.
+
+	1.	Root cause — why the failure happened (missing context, ambiguous rule, wrong stack assumption).
+	2.	Before/after — concrete wrong vs correct pattern.
+	3.	Rewrite — append to the correct docs/llm/ doc when generalising:
+
+### Topic Name
+[DO / NEVER / PREFER]
+
+- **BAD:** [incorrect approach]
+- **GOOD:** [correct approach]
+
+*Why:* [root cause]
+
+Update thin adapter only if globs/description or top invariants must change; update meta-rules only if routing changed. 
+4. Promote + sync.
+
+6. Create other skills
+
+	1.	Write .cursor/skills/<name>/SKILL.md (or Claude/GitHub equivalent) with name and description.
+	2.	Register trigger in meta-rules Skill Invocation table.
+	3.	Promote + sync.

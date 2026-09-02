@@ -1,0 +1,106 @@
+[tool.ruff]
+target-version = "py314"
+extend-exclude = ["docs", "scripts"]
+
+[tool.ruff.lint]
+select = [
+"B",      # flake8-bugbear
+"I",      # isort
+"F",      # pyflakes
+"C901",   # mccabe complexity
+"N",      # pep8-naming
+"S",      # bandit
+"PERF",   # perflint
+"G",      # logging
+"UP",     # pyupgrade
+"TRY",    # exceções
+"SIM",    # simplificações
+"D",      # docstrings
+"TID",    # imports
+"PL",     # pylint
+"E4",     # PEP-8-imports
+"E7",     # PEP-8-statements
+"E9",     # PEP-8-runtime
+"W505",   # doc line-length
+"W605",   # escape
+"RUF012", # mutable
+"BLE",    # except
+"C4",     # comprehensions
+]
+ignore = ["D101", "D102", "D103", "D107", "TRY003", "SIM108"]
+unfixable = ["B"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/presentation/" = ["PLR0913", "PLR2004"]
+"tests/" = ["S101", "SIM117", "PLC0415", "N803", "PLR2004", "TRY300", "PLR0913", "TID251"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = ["classmethod", "pydantic.field_validator"]
+extend-ignore-names = ["main", "_"]
+
+[tool.coverage.run]
+branch = true
+source = ["app"]
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = true
+
+# PEP8
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"dataclasses.dataclass".msg = "Use Pydantic BaseModel instead of @dataclass."
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 100
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+# MyPy: Type checking
+[tool.mypy]
+python_version = "3.14"
+strict = true
+explicit_package_bases = true
+files = ["app", "tests"]
+enable_error_code = ["explicit-override"]
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
+
+# Import Linter: Checa violação DDD
+[tool.importlinter]
+root_package = "app"
+
+[[tool.importlinter.contracts]]
+name = "Domain layer independence"
+type = "forbidden"
+source_modules = ["app.domain"]
+forbidden_modules = ["app.application", "app.infrastructure", "app.presentation"]
+
+[[tool.importlinter.contracts]]
+name = "Application layer boundaries"
+type = "forbidden"
+source_modules = ["app.application"]
+forbidden_modules = ["app.infrastructure", "app.presentation"]
+
+[[tool.importlinter.contracts]]
+name = "Infrastructure layer boundaries"
+type = "forbidden"
+source_modules = ["app.infrastructure"]
+forbidden_modules = ["app.presentation"]
+
+[[tool.importlinter.contracts]]
+name = "Presentation layer boundaries"
+type = "forbidden"
+source_modules = ["app.presentation"]
+forbidden_modules = ["app.infrastructure"]

@@ -1,0 +1,46 @@
+# Mais curto. Não verifica violação DDD (import linter) e menos regras.
+[tool.ruff]
+target-version = "py314"
+extend-exclude = ["docs", "scripts"]
+
+[tool.ruff.lint]
+select = ["B", "I", "F", "C901", "N", "S", "G", "UP", "SIM", "TID", "PL", "E4", "E7", "E9", "W605", "RUF012", "C4",]
+ignore = ["SIM108"]
+unfixable = ["B"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "SIM117", "PLC0415", "N803", "PLR2004", "PLR0913", "TID251"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = ["classmethod", "pydantic.field_validator"]
+extend-ignore-names = ["main", "_"]
+
+[tool.coverage.run]
+branch = true
+source = ["app"]
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = true
+
+# PEP8
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+# MyPy: Type checking
+[tool.mypy]
+python_version = "3.14"
+strict = true
+explicit_package_bases = true
+files = ["app", "tests"]
+enable_error_code = ["explicit-override"]
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
