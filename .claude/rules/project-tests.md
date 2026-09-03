@@ -1,5 +1,5 @@
 ---
-description: Use when writing or editing tests — test tree layout, fakes/mocks, pytest markers, and how to run unit vs integration suites.
+description: Use when writing or editing tests - test tree layout, fakes/mocks, pytest markers, and how to run unit vs integration suites.
 paths:
   - "tests/**/*.py"
 ---

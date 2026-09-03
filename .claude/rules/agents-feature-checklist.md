@@ -1,4 +1,5 @@
 ---
+description: Use when editing app/ Python - feature change checklist, post-change quality gate, and decision matrix.
 paths:
   - "app/**/*.py"
 ---

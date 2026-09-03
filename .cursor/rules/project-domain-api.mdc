@@ -1,7 +1,5 @@
 ---
-description: >
-  Use when changing tenant/auth headers, catalog isolation, storage backends,
-  File.url, Graph token handling, or create_file/create_folder parent path rules.
+description: Use when changing tenant/auth headers, catalog isolation, storage backends, File.url, Graph token handling, or create_file/create_folder parent path rules.
 globs: app/domain/**/*.py,app/application/use_cases/**/*.py,app/presentation/**/*.py
 alwaysApply: false
 ---

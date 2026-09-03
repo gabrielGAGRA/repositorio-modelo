@@ -1,6 +1,7 @@
 ---
 description: Use for rule priority, where to find docs, and when to invoke skills (planning, review, commit, and rule governance).
 ---
+
 <!-- TEMPLATE: Inject-ready rule. Replace every FILL block with target-repo facts; delete this banner when done. -->
 # Meta rules
 ## Priority (highest -> lowest)

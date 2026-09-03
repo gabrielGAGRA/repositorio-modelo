@@ -1,7 +1,5 @@
 ---
-description: >
-  Workspace facts. Use for tech stack, hexagonal layout overview,
-  primary codebase path, virtualenv location, and deferred work (TODO.md).
+description: Workspace facts. Use for tech stack, hexagonal layout overview, primary codebase path, virtualenv location, and deferred work (TODO.md).
 alwaysApply: true
 ---
 

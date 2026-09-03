@@ -1,5 +1,5 @@
 ---
-description: Use when editing app/ Python — package layout, hexagonal layers, composition root, and where adapters vs domain/application code belong.
+description: Use when editing app/ Python - package layout, hexagonal layers, composition root, and where adapters vs domain/application code belong.
 applyTo: app/**/*.py
 ---
 
