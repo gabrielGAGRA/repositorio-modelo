@@ -1,7 +1,7 @@
 ---
+trigger: model_decision
 description: Use when editing app/ Python - package layout, hexagonal layers, composition root, and where adapters vs domain/application code belong.
 globs: app/**/*.py
-alwaysApply: false
 ---
 
 <!-- TEMPLATE: Inject-ready rule. Replace every FILL block with target-repo facts; delete this banner when done. -->

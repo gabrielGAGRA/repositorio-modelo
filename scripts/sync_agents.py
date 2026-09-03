@@ -113,6 +113,9 @@ def parse_frontmatter(content: str) -> tuple[dict[str, str], str]:
         key, _, value = line.partition(":")
         key = key.strip()
         value = value.strip()
+        if key == "trigger":
+            index += 1
+            continue
         if value in (">", "|"):
             meta[key], index = _read_block_scalar(lines, index + 1)
             continue
@@ -128,6 +131,21 @@ def parse_frontmatter(content: str) -> tuple[dict[str, str], str]:
         meta[key] = value
         index += 1
     return meta, content[match.end() :]
+
+
+def remove_trigger_frontmatter(content: str) -> str:
+    """Remove source-only trigger metadata from a rule's frontmatter."""
+    content = normalize_text(content)
+    match = re.match(r"^---\n(.*?)\n---\n?", content, re.DOTALL)
+    if not match:
+        return content
+    frontmatter = re.sub(
+        r"^trigger\s*:[^\n]*(?:\n|$)",
+        "",
+        match.group(1),
+        flags=re.MULTILINE,
+    )
+    return f"---\n{frontmatter}\n---\n{content[match.end():]}"
 
 
 def yaml_quote(value: str) -> str:
@@ -187,7 +205,7 @@ def format_claude_frontmatter(meta: dict[str, str]) -> str:
 def render_rule_content(platform: str, content: str) -> str:
     """Render rule content with platform-specific frontmatter."""
     if platform == "cursor":
-        return content
+        return remove_trigger_frontmatter(content)
     meta, body = parse_frontmatter(content)
     if platform == "github":
         return f"{format_frontmatter(to_copilot_frontmatter(meta))}{body}"
